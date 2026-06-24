@@ -2,6 +2,7 @@
 import { RotateCcw } from '@lucide/vue';
 import { reactive, watch } from 'vue';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
 import type { CityOption } from '@/types/events';
 
 export interface EventFilterValues {
@@ -44,23 +45,13 @@ const fieldClass =
             <label class="text-xs font-medium text-muted-foreground" for="from"
                 >From</label
             >
-            <input
-                id="from"
-                v-model="filters.from"
-                type="date"
-                :class="fieldClass"
-            />
+            <DatePicker id="from" v-model="filters.from" placeholder="Start date" />
         </div>
         <div class="flex flex-col gap-1">
             <label class="text-xs font-medium text-muted-foreground" for="to"
                 >To</label
             >
-            <input
-                id="to"
-                v-model="filters.to"
-                type="date"
-                :class="fieldClass"
-            />
+            <DatePicker id="to" v-model="filters.to" placeholder="End date" />
         </div>
 
         <div v-if="!hideCity" class="flex flex-col gap-1">

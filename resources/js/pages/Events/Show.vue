@@ -52,6 +52,31 @@ defineOptions({
 const time = computed(() =>
     formatEventTime(props.event.start_iso, props.event.timezone),
 );
+
+function toGCalDate(iso: string | null): string {
+    if (!iso) return '';
+    return iso.replace(/[-:]/g, '').replace(/\.\d{3}Z?$/, 'Z');
+}
+
+const calendarUrl = computed(() => {
+    const start = toGCalDate(props.event.start_iso);
+    const end = toGCalDate(props.event.end_iso) || start;
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: props.event.title,
+        dates: `${start}/${end}`,
+        location: props.event.location_label,
+        details: props.event.description ?? '',
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+});
+
+const mapsUrl = computed(() => {
+    if (props.event.lat != null && props.event.lng != null) {
+        return `https://www.google.com/maps?q=${props.event.lat},${props.event.lng}`;
+    }
+    return `https://www.google.com/maps/search/${encodeURIComponent(props.event.location_label)}`;
+});
 const images = computed(() =>
     props.event.images
         .map((image) => ({ ...image, url: eventImageUrl(image.url) }))
@@ -156,7 +181,12 @@ onBeforeUnmount(() => {
                 </div>
 
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <div class="flex items-start gap-3 rounded-xl border p-4">
+                    <a
+                        :href="calendarUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-start gap-3 rounded-xl border p-4 transition-colors hover:bg-muted/50"
+                    >
                         <CalendarDays class="mt-0.5 size-5 text-primary" />
                         <div>
                             <p class="text-sm font-medium">
@@ -170,8 +200,13 @@ onBeforeUnmount(() => {
                                 {{ time.localLabel }}
                             </p>
                         </div>
-                    </div>
-                    <div class="flex items-start gap-3 rounded-xl border p-4">
+                    </a>
+                    <a
+                        :href="mapsUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-start gap-3 rounded-xl border p-4 transition-colors hover:bg-muted/50"
+                    >
                         <MapPin class="mt-0.5 size-5 text-primary" />
                         <div>
                             <p class="text-sm font-medium">
@@ -181,7 +216,7 @@ onBeforeUnmount(() => {
                                 {{ event.location_label }}
                             </p>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div v-if="event.description" class="flex flex-col gap-2">

@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface EventRow {
     id: string;
@@ -157,15 +158,8 @@ onBeforeUnmount(() => observer?.disconnect());
                 </select>
             </div>
             <div class="flex flex-col gap-1">
-                <label class="text-xs text-muted-foreground" for="from"
-                    >From</label
-                >
-                <input
-                    id="from"
-                    v-model="form.from"
-                    type="date"
-                    class="h-9 rounded-md border border-input bg-background px-3 text-sm"
-                />
+                <label class="text-xs text-muted-foreground" for="from">From</label>
+                <DatePicker id="from" v-model="form.from" placeholder="Start date" />
             </div>
             <Button type="button" @click.prevent="applyFilters">Filter</Button>
         </form>
