@@ -36,7 +36,7 @@ class EventImage extends Model
     /**
      * Public URL for the locally-stored image file.
      *
-     * @return Attribute<non-falsy-string, never>
+     * @return Attribute<string, never>
      */
     protected function url(): Attribute
     {

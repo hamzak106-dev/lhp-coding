@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class EventImageFactory extends Factory
 {
+    /** @var non-empty-array<int, string> */
+    private const DEFAULT_IMAGE_POOL = ['events/concert-1.jpg'];
+
     protected $model = EventImage::class;
 
     public function definition(): array
@@ -47,8 +50,26 @@ class EventImageFactory extends Factory
     private function imagePool(string $category): array
     {
         $pools = config('seeding.event_image_urls', []);
-        $pool = $pools[$category] ?? $pools['concert'] ?? ['events/concert-1.jpg'];
 
-        return array_values($pool);
+        if (! is_array($pools)) {
+            return self::DEFAULT_IMAGE_POOL;
+        }
+
+        $pool = $pools[$category] ?? $pools['concert'] ?? self::DEFAULT_IMAGE_POOL;
+
+        if (! is_array($pool)) {
+            return self::DEFAULT_IMAGE_POOL;
+        }
+
+        $images = array_values(array_filter(
+            $pool,
+            static fn (mixed $image): bool => is_string($image) && $image !== '',
+        ));
+
+        if ($images === []) {
+            return self::DEFAULT_IMAGE_POOL;
+        }
+
+        return $images;
     }
 }
