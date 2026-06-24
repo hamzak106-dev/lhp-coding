@@ -102,11 +102,7 @@ function register() {
 
 onMounted(() => {
     if (mapEl.value && props.event.lat != null && props.event.lng != null) {
-        map = L.map(mapEl.value, {
-            zoomControl: false,
-            scrollWheelZoom: false,
-            dragging: false,
-        }).setView([props.event.lat, props.event.lng], 11);
+        map = L.map(mapEl.value).setView([props.event.lat, props.event.lng], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
         }).addTo(map);

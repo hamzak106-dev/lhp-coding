@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { RotateCcw } from '@lucide/vue';
-import { reactive, watch } from 'vue';
+import { ChevronDown, RotateCcw } from '@lucide/vue';
+import { reactive, ref, watch } from 'vue';
+import CityAutocomplete from '@/components/CityAutocomplete.vue';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import type { CityOption } from '@/types/events';
@@ -37,6 +38,16 @@ function reset() {
 
 const fieldClass =
     'h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none';
+
+const categoryOpen = ref(false);
+
+function selectCategory(value: string) {
+    filters.category = value;
+    categoryOpen.value = false;
+}
+
+const categoryLabel = (cat: string) =>
+    cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : 'All categories';
 </script>
 
 <template>
@@ -55,41 +66,53 @@ const fieldClass =
         </div>
 
         <div v-if="!hideCity" class="flex flex-col gap-1">
-            <label class="text-xs font-medium text-muted-foreground" for="city"
-                >City</label
-            >
-            <select id="city" v-model="filters.city" :class="fieldClass">
-                <option value="">All cities</option>
-                <option v-for="c in cities" :key="c.value" :value="c.value">
-                    {{ c.label }}
-                </option>
-            </select>
+            <label class="text-xs font-medium text-muted-foreground">City</label>
+            <CityAutocomplete
+                v-model="filters.city"
+                :cities="cities"
+                placeholder="All cities"
+            />
         </div>
 
-        <div class="flex flex-col gap-1">
-            <label
-                class="text-xs font-medium text-muted-foreground"
-                for="category"
-                >Category</label
+        <div class="relative flex flex-col gap-1">
+            <label class="text-xs font-medium text-muted-foreground">Category</label>
+            <button
+                type="button"
+                class="flex h-9 w-40 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-sm shadow-sm hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                @click="categoryOpen = !categoryOpen"
+                @blur="categoryOpen = false"
             >
-            <select
-                id="category"
-                v-model="filters.category"
-                :class="[fieldClass, 'capitalize']"
+                <span class="capitalize">{{ categoryLabel(filters.category) }}</span>
+                <ChevronDown
+                    class="size-3.5 shrink-0 text-muted-foreground transition-transform"
+                    :class="{ 'rotate-180': categoryOpen }"
+                />
+            </button>
+
+            <ul
+                v-if="categoryOpen"
+                class="absolute top-full z-50 mt-1 w-40 overflow-hidden rounded-md border bg-popover shadow-md"
             >
-                <option value="">All categories</option>
-                <option
+                <li
+                    class="cursor-pointer px-3 py-2 text-sm hover:bg-accent"
+                    :class="{ 'font-medium': !filters.category }"
+                    @mousedown.prevent="selectCategory('')"
+                >
+                    All categories
+                </li>
+                <li
                     v-for="cat in categories"
                     :key="cat"
-                    :value="cat"
-                    class="capitalize"
+                    class="cursor-pointer px-3 py-2 text-sm capitalize hover:bg-accent"
+                    :class="{ 'font-medium': filters.category === cat }"
+                    @mousedown.prevent="selectCategory(cat)"
                 >
                     {{ cat }}
-                </option>
-            </select>
+                </li>
+            </ul>
         </div>
 
-        <Button variant="outline" size="sm" class="ml-auto" @click="reset">
+        <Button variant="outline" size="sm" class="ml-auto cursor-pointer" @click="reset">
             <RotateCcw class="size-3.5" />
             Reset
         </Button>

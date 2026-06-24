@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import { ChevronDown } from '@lucide/vue';
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -93,6 +94,13 @@ function applyFilters() {
     loadMore();
 }
 
+const statusOpen = ref(false);
+
+function selectStatus(value: string) {
+    form.status = value;
+    statusOpen.value = false;
+}
+
 const statusVariant = (status: string) => {
     switch (status) {
         case 'published':
@@ -142,20 +150,42 @@ onBeforeUnmount(() => observer?.disconnect());
         </div>
 
         <form class="flex flex-wrap items-end gap-3" @submit.prevent>
-            <div class="flex flex-col gap-1">
-                <label class="text-xs text-muted-foreground" for="status"
-                    >Status</label
+            <div class="relative flex flex-col gap-1">
+                <label class="text-xs text-muted-foreground">Status</label>
+                <button
+                    type="button"
+                    class="flex h-9 w-36 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-sm shadow-sm hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                    @click="statusOpen = !statusOpen"
+                    @blur="statusOpen = false"
                 >
-                <select
-                    id="status"
-                    v-model="form.status"
-                    class="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                    <span class="capitalize">{{ form.status || 'All' }}</span>
+                    <ChevronDown
+                        class="size-3.5 shrink-0 text-muted-foreground transition-transform"
+                        :class="{ 'rotate-180': statusOpen }"
+                    />
+                </button>
+
+                <ul
+                    v-if="statusOpen"
+                    class="absolute top-full z-50 mt-1 w-36 overflow-hidden rounded-md border bg-popover shadow-md"
                 >
-                    <option value="">All</option>
-                    <option v-for="s in statuses" :key="s" :value="s">
+                    <li
+                        class="cursor-pointer px-3 py-2 text-sm hover:bg-accent"
+                        :class="{ 'font-medium': !form.status }"
+                        @mousedown.prevent="selectStatus('')"
+                    >
+                        All
+                    </li>
+                    <li
+                        v-for="s in statuses"
+                        :key="s"
+                        class="cursor-pointer px-3 py-2 text-sm capitalize hover:bg-accent"
+                        :class="{ 'font-medium': form.status === s }"
+                        @mousedown.prevent="selectStatus(s)"
+                    >
                         {{ s }}
-                    </option>
-                </select>
+                    </li>
+                </ul>
             </div>
             <div class="flex flex-col gap-1">
                 <label class="text-xs text-muted-foreground" for="from">From</label>
