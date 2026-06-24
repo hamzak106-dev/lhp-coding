@@ -103,6 +103,7 @@ class EventSeeder extends Seeder
         $typeWeights = $this->cumulativeWeights([20, 14, 22, 12, 12, 8, 8, 4]);
         $statusWeights = $this->cumulativeWeights([12, 70, 8, 10]);
         $anchorCount = count(self::CITY_ANCHORS);
+        $imagePools = $this->imagePools();
 
         $remaining = $count;
         $done = 0;
@@ -154,11 +155,11 @@ class EventSeeder extends Seeder
                     'updated_at' => $now,
                 ];
 
-                // Two locally-served images per event, chosen by category from
-                // the committed placeholder pool (storage/app/public/events).
+                [$primaryImage, $secondaryImage] = $this->imagePairFor($type, $imagePools);
+
                 $imageBatch[] = [
                     'event_id' => $id,
-                    'path' => "events/{$type}-1.jpg",
+                    'path' => $primaryImage,
                     'position' => 0,
                     'is_primary' => 1,
                     'created_at' => $now,
@@ -166,7 +167,7 @@ class EventSeeder extends Seeder
                 ];
                 $imageBatch[] = [
                     'event_id' => $id,
-                    'path' => "events/{$type}-2.jpg",
+                    'path' => $secondaryImage,
                     'position' => 1,
                     'is_primary' => 0,
                     'created_at' => $now,
@@ -182,7 +183,7 @@ class EventSeeder extends Seeder
             $done += $batchSize;
             $remaining -= $batchSize;
 
-            if ($done % (self::CHUNK * 25) === 0 || $remaining === 0) {
+            if ($this->command !== null && ($done % (self::CHUNK * 25) === 0 || $remaining === 0)) {
                 $this->command->getOutput()->writeln("  inserted {$done}/{$count}");
             }
         }
@@ -278,6 +279,38 @@ class EventSeeder extends Seeder
     private function escape(string $value): string
     {
         return str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
+    }
+
+    /**
+     * @return array<string, non-empty-array<int, string>>
+     */
+    private function imagePools(): array
+    {
+        $configured = config('seeding.event_image_urls', []);
+        $fallback = [
+            'concert' => ['events/concert-1.jpg', 'events/concert-2.jpg'],
+        ];
+
+        return $configured !== [] ? $configured : $fallback;
+    }
+
+    /**
+     * @param  array<string, non-empty-array<int, string>>  $imagePools
+     * @return array{0: string, 1: string}
+     */
+    private function imagePairFor(string $type, array $imagePools): array
+    {
+        $pool = array_values($imagePools[$type] ?? $imagePools['concert']);
+        $primaryIndex = mt_rand(0, count($pool) - 1);
+        $secondaryIndex = $primaryIndex;
+
+        if (count($pool) > 1) {
+            while ($secondaryIndex === $primaryIndex) {
+                $secondaryIndex = mt_rand(0, count($pool) - 1);
+            }
+        }
+
+        return [$pool[$primaryIndex], $pool[$secondaryIndex]];
     }
 
     private function uuidv4(): string

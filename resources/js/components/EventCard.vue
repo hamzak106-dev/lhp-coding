@@ -4,6 +4,7 @@ import { CalendarDays, MapPin } from '@lucide/vue';
 import { computed } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import { formatEventTime, formatPrice } from '@/composables/useEventDateTime';
+import { eventImageUrl } from '@/lib/eventImages';
 import type { EventListItem } from '@/types/events';
 
 const props = defineProps<{ event: EventListItem }>();
@@ -14,6 +15,7 @@ const time = computed(() =>
 const price = computed(() =>
     formatPrice(props.event.price, props.event.currency),
 );
+const imageUrl = computed(() => eventImageUrl(props.event.image_url));
 </script>
 
 <template>
@@ -23,8 +25,8 @@ const price = computed(() =>
     >
         <div class="relative aspect-[4/3] overflow-hidden bg-muted">
             <img
-                v-if="event.image_url"
-                :src="event.image_url"
+                v-if="imageUrl"
+                :src="imageUrl"
                 :alt="event.title"
                 loading="lazy"
                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

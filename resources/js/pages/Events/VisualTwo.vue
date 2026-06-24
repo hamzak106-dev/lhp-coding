@@ -6,14 +6,13 @@ import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import EventFilters from '@/components/EventFilters.vue';
 import type { EventFilterValues } from '@/components/EventFilters.vue';
 import { Badge } from '@/components/ui/badge';
 import { formatEventTime, formatPrice } from '@/composables/useEventDateTime';
+import { eventImageUrl } from '@/lib/eventImages';
+import { configureLeafletIcons } from '@/lib/leafletIcons';
 import type { CityOption, EventListItem } from '@/types/events';
 
 const props = defineProps<{
@@ -27,12 +26,7 @@ defineOptions({
     },
 });
 
-// Fix Leaflet's default marker asset paths under Vite.
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: markerIcon2x,
-    iconUrl: markerIcon,
-    shadowUrl: markerShadow,
-});
+configureLeafletIcons();
 
 const today = new Date().toISOString().slice(0, 10);
 const filters = ref<EventFilterValues>({
@@ -54,8 +48,9 @@ let debounce: ReturnType<typeof setTimeout> | null = null;
 
 function popupHtml(event: EventListItem): string {
     const time = formatEventTime(event.start_iso, event.timezone);
-    const img = event.image_url
-        ? `<img src="${event.image_url}" alt="" style="width:100%;height:96px;object-fit:cover;border-radius:8px;margin-bottom:6px" />`
+    const image = eventImageUrl(event.image_url);
+    const img = image
+        ? `<img src="${image}" alt="" style="width:100%;height:96px;object-fit:cover;border-radius:8px;margin-bottom:6px" />`
         : '';
 
     return `
@@ -235,8 +230,8 @@ function openDetail(id: string) {
                         @click="openDetail(event.id)"
                     >
                         <img
-                            v-if="event.image_url"
-                            :src="event.image_url"
+                            v-if="eventImageUrl(event.image_url)"
+                            :src="eventImageUrl(event.image_url) ?? undefined"
                             alt=""
                             loading="lazy"
                             class="size-14 shrink-0 rounded-md object-cover"

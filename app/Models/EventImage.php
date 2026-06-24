@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * @property-read string $url
@@ -36,10 +36,22 @@ class EventImage extends Model
     /**
      * Public URL for the locally-stored image file.
      *
-     * @return Attribute<string, never>
+     * @return Attribute<non-falsy-string, never>
      */
     protected function url(): Attribute
     {
-        return Attribute::get(fn (): string => Storage::disk('public')->url($this->path));
+        return Attribute::get(function (): string {
+            $path = ltrim($this->path, '/');
+
+            if (Str::startsWith($path, ['http://', 'https://'])) {
+                return $this->path;
+            }
+
+            if (Str::startsWith($path, ['storage/http://', 'storage/https://'])) {
+                return Str::after($path, 'storage/');
+            }
+
+            return sprintf('/event-images/%s', $path);
+        });
     }
 }

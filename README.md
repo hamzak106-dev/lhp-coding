@@ -6,7 +6,8 @@ interactive **map** — with local images, human-readable addresses, timezone-aw
 date/location filtering, and an attendee registration + email reminder system.
 
 > Built as a solution to `CODING_TEST.md`. See **[DECISIONS.md](DECISIONS.md)** for the
-> reasoning behind the design, and **[EXPLAIN.md](EXPLAIN.md)** for query/index evidence.
+> reasoning behind the design, **[EXPLAIN.md](EXPLAIN.md)** for query/index evidence,
+> and **[RUNBOOK.md](RUNBOOK.md)** for local setup/troubleshooting commands.
 
 ## Features
 
@@ -41,8 +42,13 @@ php artisan storage:link          # serve the local event images
 
 # Seed the dataset. Full is ~1.25M events (a few minutes, ~2 GB):
 php artisan db:seed
-# …or scale down while iterating:
-SEED_ROWS=25000 php artisan db:seed
+# ...or create a medium local demo seed with events, city-anchored locations,
+# and two local images per event:
+php artisan db:seed --class=MediumEventSeeder
+# Override the medium size while iterating:
+MEDIUM_SEED_ROWS=5000 php artisan db:seed --class=MediumEventSeeder
+# If you already have events and only need to backfill image rows:
+php artisan db:seed --class=EventImageSeeder
 ```
 
 ## Running

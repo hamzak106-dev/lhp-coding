@@ -45,8 +45,8 @@ class EventFactory extends Factory
     public function withImages(): static
     {
         return $this->afterCreating(function (Event $event) {
-            EventImage::factory()->for($event)->create();
-            EventImage::factory()->for($event)->secondary()->create();
+            EventImage::factory()->for($event)->category($event->type, 0, true)->create();
+            EventImage::factory()->for($event)->category($event->type, 1, false)->create();
         });
     }
 

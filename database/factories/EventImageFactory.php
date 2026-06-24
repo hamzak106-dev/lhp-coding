@@ -17,7 +17,7 @@ class EventImageFactory extends Factory
     {
         return [
             'event_id' => Event::factory(),
-            'path' => 'events/concert-1.jpg',
+            'path' => fake()->randomElement($this->imagePool('concert')),
             'position' => 0,
             'is_primary' => true,
         ];
@@ -26,9 +26,29 @@ class EventImageFactory extends Factory
     public function secondary(int $position = 1): static
     {
         return $this->state(fn () => [
-            'path' => 'events/concert-2.jpg',
+            'path' => fake()->randomElement($this->imagePool('concert')),
             'position' => $position,
             'is_primary' => false,
         ]);
+    }
+
+    public function category(string $category, int $position = 0, bool $primary = true): static
+    {
+        return $this->state(fn () => [
+            'path' => fake()->randomElement($this->imagePool($category)),
+            'position' => $position,
+            'is_primary' => $primary,
+        ]);
+    }
+
+    /**
+     * @return non-empty-array<int, string>
+     */
+    private function imagePool(string $category): array
+    {
+        $pools = config('seeding.event_image_urls', []);
+        $pool = $pools[$category] ?? $pools['concert'] ?? ['events/concert-1.jpg'];
+
+        return array_values($pool);
     }
 }

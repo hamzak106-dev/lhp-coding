@@ -10,9 +10,6 @@ import {
 } from '@lucide/vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,6 +17,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { formatEventTime, formatPrice } from '@/composables/useEventDateTime';
+import { eventImageUrl } from '@/lib/eventImages';
+import { configureLeafletIcons } from '@/lib/leafletIcons';
 
 interface EventDetail {
     id: string;
@@ -53,16 +52,19 @@ defineOptions({
 const time = computed(() =>
     formatEventTime(props.event.start_iso, props.event.timezone),
 );
-const activeImage = ref(props.event.images[0]?.url ?? null);
+const images = computed(() =>
+    props.event.images
+        .map((image) => ({ ...image, url: eventImageUrl(image.url) }))
+        .filter((image): image is { url: string; is_primary: boolean } =>
+            Boolean(image.url),
+        ),
+);
+const activeImage = ref(images.value[0]?.url ?? null);
 
 const mapEl = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
 
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: markerIcon2x,
-    iconUrl: markerIcon,
-    shadowUrl: markerShadow,
-});
+configureLeafletIcons();
 
 const form = useForm({ name: '', email: '', status: 'attending' });
 
@@ -116,9 +118,9 @@ onBeforeUnmount(() => {
                     class="h-full w-full object-cover"
                 />
             </div>
-            <div v-if="event.images.length > 1" class="flex gap-3">
+            <div v-if="images.length > 1" class="flex gap-3">
                 <button
-                    v-for="(img, i) in event.images"
+                    v-for="(img, i) in images"
                     :key="i"
                     type="button"
                     class="aspect-[4/3] w-28 overflow-hidden rounded-lg border-2 transition-all"
