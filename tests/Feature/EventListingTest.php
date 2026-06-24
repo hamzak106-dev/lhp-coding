@@ -53,18 +53,22 @@ it('filters the data endpoint by status', function () {
         ->assertJsonPath('data.0.status', 'cancelled');
 });
 
-it('shows an event detail page with its payload', function () {
+it('shows an event detail page with its presented details', function () {
     $user = User::factory()->create();
     $event = Event::factory()->for($user)->create([
         'payload' => ['name' => 'Global Tech Summit', 'location' => ['lat' => 1.5, 'lng' => 2.5]],
     ]);
 
+    // The detail page now receives a lean, presentation-ready shape
+    // (EventTransformer::forDetail) rather than the raw JSON payload.
     $this->get(route('events.show', $event))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Events/Show')
             ->where('event.id', $event->id)
-            ->where('event.payload.name', 'Global Tech Summit')
+            ->where('event.title', 'Global Tech Summit')
+            ->has('event.images')
+            ->has('event.attendees_count')
         );
 });
 
