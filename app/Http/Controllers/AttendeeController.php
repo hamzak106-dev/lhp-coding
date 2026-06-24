@@ -31,7 +31,7 @@ class AttendeeController extends Controller
         if (! $attendee->wasRecentlyCreated) {
             return back()->with('toast', [
                 'type' => 'info',
-                'message' => "You're already on the list for this event.",
+                'message' => "You've already registered your interest in this event.",
             ]);
         }
 
@@ -39,7 +39,7 @@ class AttendeeController extends Controller
 
         return back()->with('toast', [
             'type' => 'success',
-            'message' => "You're on the list — check your email for confirmation.",
+            'message' => "Thank you for registering your interest! A confirmation has been sent to your email.",
         ]);
     }
 }
