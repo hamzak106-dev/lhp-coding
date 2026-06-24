@@ -36,9 +36,6 @@ function reset() {
     filters.category = '';
 }
 
-const fieldClass =
-    'h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none';
-
 const categoryOpen = ref(false);
 
 function selectCategory(value: string) {
@@ -56,7 +53,11 @@ const categoryLabel = (cat: string) =>
             <label class="text-xs font-medium text-muted-foreground" for="from"
                 >From</label
             >
-            <DatePicker id="from" v-model="filters.from" placeholder="Start date" />
+            <DatePicker
+                id="from"
+                v-model="filters.from"
+                placeholder="Start date"
+            />
         </div>
         <div class="flex flex-col gap-1">
             <label class="text-xs font-medium text-muted-foreground" for="to"
@@ -66,7 +67,9 @@ const categoryLabel = (cat: string) =>
         </div>
 
         <div v-if="!hideCity" class="flex flex-col gap-1">
-            <label class="text-xs font-medium text-muted-foreground">City</label>
+            <label class="text-xs font-medium text-muted-foreground"
+                >City</label
+            >
             <CityAutocomplete
                 v-model="filters.city"
                 :cities="cities"
@@ -75,14 +78,18 @@ const categoryLabel = (cat: string) =>
         </div>
 
         <div class="relative flex flex-col gap-1">
-            <label class="text-xs font-medium text-muted-foreground">Category</label>
+            <label class="text-xs font-medium text-muted-foreground"
+                >Category</label
+            >
             <button
                 type="button"
                 class="flex h-9 w-40 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-sm shadow-sm hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 @click="categoryOpen = !categoryOpen"
                 @blur="categoryOpen = false"
             >
-                <span class="capitalize">{{ categoryLabel(filters.category) }}</span>
+                <span class="capitalize">{{
+                    categoryLabel(filters.category)
+                }}</span>
                 <ChevronDown
                     class="size-3.5 shrink-0 text-muted-foreground transition-transform"
                     :class="{ 'rotate-180': categoryOpen }"
@@ -112,7 +119,12 @@ const categoryLabel = (cat: string) =>
             </ul>
         </div>
 
-        <Button variant="outline" size="sm" class="ml-auto cursor-pointer" @click="reset">
+        <Button
+            variant="outline"
+            size="sm"
+            class="ml-auto cursor-pointer"
+            @click="reset"
+        >
             <RotateCcw class="size-3.5" />
             Reset
         </Button>

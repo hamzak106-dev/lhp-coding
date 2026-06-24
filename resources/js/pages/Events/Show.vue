@@ -54,7 +54,10 @@ const time = computed(() =>
 );
 
 function toGCalDate(iso: string | null): string {
-    if (!iso) return '';
+    if (!iso) {
+        return '';
+    }
+
     return iso.replace(/[-:]/g, '').replace(/\.\d{3}Z?$/, 'Z');
 }
 
@@ -68,6 +71,7 @@ const calendarUrl = computed(() => {
         location: props.event.location_label,
         details: props.event.description ?? '',
     });
+
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
 });
 
@@ -75,6 +79,7 @@ const mapsUrl = computed(() => {
     if (props.event.lat != null && props.event.lng != null) {
         return `https://www.google.com/maps?q=${props.event.lat},${props.event.lng}`;
     }
+
     return `https://www.google.com/maps/search/${encodeURIComponent(props.event.location_label)}`;
 });
 const images = computed(() =>
@@ -102,7 +107,10 @@ function register() {
 
 onMounted(() => {
     if (mapEl.value && props.event.lat != null && props.event.lng != null) {
-        map = L.map(mapEl.value).setView([props.event.lat, props.event.lng], 13);
+        map = L.map(mapEl.value).setView(
+            [props.event.lat, props.event.lng],
+            13,
+        );
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
         }).addTo(map);

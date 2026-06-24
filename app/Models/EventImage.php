@@ -51,7 +51,7 @@ class EventImage extends Model
                 return Str::after($path, 'storage/');
             }
 
-            return sprintf('/event-images/%s', $path);
+            return sprintf('/storage/%s', $path);
         });
     }
 }

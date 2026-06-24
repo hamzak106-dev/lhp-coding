@@ -188,8 +188,14 @@ onBeforeUnmount(() => observer?.disconnect());
                 </ul>
             </div>
             <div class="flex flex-col gap-1">
-                <label class="text-xs text-muted-foreground" for="from">From</label>
-                <DatePicker id="from" v-model="form.from" placeholder="Start date" />
+                <label class="text-xs text-muted-foreground" for="from"
+                    >From</label
+                >
+                <DatePicker
+                    id="from"
+                    v-model="form.from"
+                    placeholder="Start date"
+                />
             </div>
             <Button type="button" @click.prevent="applyFilters">Filter</Button>
         </form>

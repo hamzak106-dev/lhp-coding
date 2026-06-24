@@ -24,21 +24,33 @@ watch(
             query.value = '';
         } else {
             const match = props.cities.find((c) => c.value === val);
-            if (match) query.value = match.label;
+
+            if (match) {
+                query.value = match.label;
+            }
         }
     },
 );
 
 const suggestions = computed(() => {
     const q = query.value.trim().toLowerCase();
-    if (!q) return props.cities.slice(0, 8);
-    return props.cities.filter((c) => c.label.toLowerCase().includes(q)).slice(0, 8);
+
+    if (!q) {
+        return props.cities.slice(0, 8);
+    }
+
+    return props.cities
+        .filter((c) => c.label.toLowerCase().includes(q))
+        .slice(0, 8);
 });
 
 function onInput(e: Event) {
     query.value = (e.target as HTMLInputElement).value;
     open.value = true;
-    if (query.value === '') emit('update:modelValue', '');
+
+    if (query.value === '') {
+        emit('update:modelValue', '');
+    }
 }
 
 function onFocus() {
@@ -64,6 +76,7 @@ function onBlur() {
         const match = props.cities.find(
             (c) => c.label.toLowerCase() === query.value.trim().toLowerCase(),
         );
+
         if (!match) {
             query.value = '';
             emit('update:modelValue', '');
@@ -72,7 +85,10 @@ function onBlur() {
 }
 
 function onOptionMousedown(city: CityOption) {
-    if (blurTimer) clearTimeout(blurTimer);
+    if (blurTimer) {
+        clearTimeout(blurTimer);
+    }
+
     select(city);
 }
 </script>
@@ -88,7 +104,7 @@ function onOptionMousedown(city: CityOption) {
                 type="text"
                 autocomplete="off"
                 :placeholder="placeholder ?? 'Search city…'"
-                class="h-9 w-48 rounded-md border border-input bg-background pl-7 pr-7 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                class="h-9 w-48 rounded-md border border-input bg-background pr-7 pl-7 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 @input="onInput"
                 @focus="onFocus"
                 @blur="onBlur"
